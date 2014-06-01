@@ -3,7 +3,7 @@
     display: none;
 }
 
-.first_column {
+.field {
     width: 10em;
     padding-left: 0.5em;
 }
@@ -31,4 +31,9 @@
     overflow: hidden;
     white-space: nowrap;
     padding-left: 0.3em;
+    width: 13em;
+}
+
+table {
+    width: auto;
 }

@@ -49,6 +49,13 @@ function row(field, title, formatter, tag) {
 }
 
 d3.select('#go').on('click', clickGo);
+d3.select('#id').on('keydown', keyPress);
+
+function keyPress() {
+    if (d3.event.keyCode == 13) {
+        clickGo();
+    }
+}
 
 function clickGo() {
     var type = d3.select('#type').property('value'),
@@ -58,23 +65,30 @@ function clickGo() {
     document.location.hash = "/" + type + "/" + id;
 
     hist.getObjectHistory(type, id, function(err, objects) {
+        if (err) {
+            console.log("Could not fetch " + type + " " + id + ": " + err.status);
+            return;
+        }
         var i, step, key,
             objectTags = {},
-            object = objects[type][id],
-            html = "<table border='1' style='min-width: " + object.length * 200 + "px;'>";
+            object = objects[type][id];
 
-        var table = d3.select('#history-2')
+        d3.select('#history table')
+            .remove();
+
+        var table = d3.select('#history')
             .append('table')
             .datum(object);
 
         table.append('tr').attr('class', 'row_header').call(row('version', 'Version'));
         table.append('tr').call(row('timestamp', 'Time', timeFormat));
-        table.append('tr').call(row('changeset', 'Changeset'));
+        table.append('tr').call(row('changeset', 'Changeset', changesetLink));
         table.append('tr').call(row('user', 'User', userLink));
         table.append('tr')
             .attr('class', 'row_header')
             .append('th')
             .attr('colspan', function(d) { return d.length + 1; })
+            .attr('class', 'field')
             .text('Tags');
 
         object.reduce(function(memo, o) {
@@ -88,6 +102,10 @@ function clickGo() {
 
         function userLink(d) {
             return '<a target="_blank" href="http://openstreetmap.org/user/' + d + '">' + d + '</a>';
+        }
+
+        function changesetLink(d) {
+            return '<a target="_blank" href="http://openstreetmap.org/browse/changeset/' + d + '">' + d + '</a>';
         }
 
         overlays.clearLayers();
